@@ -1,7 +1,7 @@
 ## Development install
 1. Deployment virtual enviroment, install packages from ```requirements.txt```:
 ```
-cd ./stem_framework
+cd ./temperature_monitor
 pip install -r requirements.txt
 ```
 2. Install stem packages in ```editable mode```:
