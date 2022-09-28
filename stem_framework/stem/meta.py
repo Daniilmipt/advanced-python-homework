@@ -83,5 +83,9 @@ def get_meta_attr(meta: Meta, key: str, default: Optional[Any] = None) -> Option
 
 
 def update_meta(meta: Meta, **kwargs):
-    for key in kwargs:
-        setattr(meta, key, kwargs[key])
+    if is_dataclass(meta):
+        for key in kwargs:
+            setattr(meta, key, kwargs[key])
+    else:
+        for key in kwargs:
+            meta[key] = kwargs[key]
