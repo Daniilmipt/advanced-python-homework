@@ -1,5 +1,5 @@
 from functools import reduce
-from typing import TypeVar, Union, Tuple, Callable, Optional, Generic, Any, Iterator, Iterable
+from typing import TypeVar, Union, Tuple, Callable, Optional, Generic, Any, Iterator
 
 from abc import ABC, abstractmethod
 from .core import Named
@@ -84,7 +84,7 @@ class MapTask(Task[Iterator[T]]):
         self.dependencies = dependence
 
     def transform(self, meta: Meta, /, **kwargs: Any) -> T:
-        return map(self._func, *(kwargs.values()))
+        return map(self._func, kwargs[self.dependencies])
 
 
 class FilterTask(Task[Iterator[T]]):
@@ -94,7 +94,7 @@ class FilterTask(Task[Iterator[T]]):
         self.dependencies = dependence
 
     def transform(self, meta: Meta, /, **kwargs: Any) -> T:
-        return filter(self._func, *(kwargs.values()))
+        return filter(self._func, kwargs[self.dependencies])
 
 
 class ReduceTask(Task[Iterator[T]]):
@@ -104,4 +104,5 @@ class ReduceTask(Task[Iterator[T]]):
         self.dependencies = dependence
 
     def transform(self, meta: Meta, /, **kwargs: Any) -> T:
-        return reduce(self._func, *(kwargs.values()))
+        return reduce(self._func, kwargs[self.dependencies])
+        # return reduce(self._func, *(kwargs.values()))
