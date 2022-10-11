@@ -74,14 +74,6 @@ class IWorkspace(ABC, Named):
         pass
 
     def find_task(self, task_path: Union[str, TaskPath]) -> Optional[Task]:
-        """
-        Честно, написал код, как он работает вообще не понимаю.
-        Откуда у self есть аттрибуты tasks. self ведь элемент класса IWorkspace,
-        который наследуется от ABC, Named, у них нет эих аттрибутов.
-        :param task_path:
-        :return:
-        """
-
         if not isinstance(task_path, TaskPath):
             task_path = TaskPath(task_path)
         if task_path.is_leaf:
