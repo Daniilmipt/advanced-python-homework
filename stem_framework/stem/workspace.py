@@ -1,6 +1,7 @@
 """
 Conception modularity software
 """
+import inspect
 from abc import abstractmethod, ABC, ABCMeta
 from importlib import import_module
 from types import ModuleType
@@ -62,7 +63,6 @@ class ProxyTask(Task[T]):
 
 
 class IWorkspace(ABC, Named):
-
     @property
     @abstractmethod
     def tasks(self) -> dict[str, Task]:
@@ -82,7 +82,9 @@ class IWorkspace(ABC, Named):
                     if task == task_path.name:
                         return self.tasks[task]
             for wrs in self.workspaces:
-                task = wrs().find_task(task_path)
+                # Создаю элемент этого пространства(wrs)
+                # т.к. в workspace хранятся классы, а не их экземпляры
+                task = wrs.find_task(task_path)
                 if task is not None:
                     return task
             return None
@@ -123,12 +125,6 @@ class IWorkspace(ABC, Named):
 
     @staticmethod
     def module_workspace(module: ModuleType) -> "IWorkspace":
-        """
-        Я должен создать в except module-workspace по подобию module(как у меня сейчас написано)
-        или же я могу создать пустой module-workspace? Не понятно
-        :param module:
-        :return:
-        """
         if hasattr(module, "_stem_workspace"):
             return getattr(module, "_stem_workspace")
         else:
@@ -146,6 +142,9 @@ class IWorkspace(ABC, Named):
 
 
 class ILocalWorkspace(IWorkspace):
+    def __subclasscheck__(self, C):
+        return NotImplemented
+
     @property
     def tasks(self) -> dict[str, Task]:
         return self._tasks
@@ -190,9 +189,4 @@ class Workspace(ABCMeta, ILocalWorkspace):
         cls._workspaces = workspaces
         cls._tasks = tasks
         cls._name = name
-        
-        def __new(userclass):
-            return userclass
-
-        cls.__new__ = __new
         return cls
