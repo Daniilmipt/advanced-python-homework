@@ -190,5 +190,9 @@ class Workspace(ABCMeta, ILocalWorkspace):
         cls._workspaces = workspaces
         cls._tasks = tasks
         cls._name = name
+        
+        def __new(userclass):
+            return userclass
 
+        cls.__new__ = __new
         return cls
