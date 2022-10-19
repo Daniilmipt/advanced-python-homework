@@ -1,11 +1,11 @@
 """
 Conception modularity software
 """
-import inspect
-from abc import abstractmethod, ABC, ABCMeta
-from importlib import import_module
+
+from abc import ABC, abstractmethod, ABCMeta
 from types import ModuleType
-from typing import Optional, Any, TypeVar, Union
+from typing import Optional, Any, Type, TypeVar, Union
+from importlib import import_module
 
 from .core import Named
 from .meta import Meta
@@ -66,33 +66,33 @@ class IWorkspace(ABC, Named):
     @property
     @abstractmethod
     def tasks(self) -> dict[str, Task]:
-        pass
+        return self.tasks
 
     @property
     @abstractmethod
     def workspaces(self) -> set["IWorkspace"]:
-        pass
+        return self.workspaces
 
     def find_task(self, task_path: Union[str, TaskPath]) -> Optional[Task]:
         if not isinstance(task_path, TaskPath):
             task_path = TaskPath(task_path)
-        if task_path.is_leaf:
-            if task_path.name in self.tasks:
-                for task in self.tasks:
-                    if task == task_path.name:
-                        return self.tasks[task]
-            for wrs in self.workspaces:
-                # Создаю элемент этого пространства(wrs)
-                # т.к. в workspace хранятся классы, а не их экземпляры
-                task = wrs.find_task(task_path)
-                if task is not None:
-                    return task
-            return None
-        else:
-            for wks in self.workspaces:
-                if wks.name == task_path.head:
-                    return wks.find_task(task_path.sub_path)
-            return None
+            if task_path.is_leaf:
+                if task_path.name in self.tasks:
+                    for task in self.tasks:
+                        if task == task_path.name:
+                            return self.tasks[task]
+                for wrs in self.workspaces:
+                    # Создаю элемент этого пространства(wrs)
+                    # т.к. в workspace хранятся классы, а не их экземпляры
+                    task = wrs.find_task(task_path)
+                    if task is not None:
+                        return task
+                return None
+            else:
+                for wks in self.workspaces:
+                    if wks.name == task_path.head:
+                        return wks.find_task(task_path.sub_path)
+                return None
 
     def has_task(self, task_path: Union[str, TaskPath]) -> bool:
         return self.find_task(task_path) is not None
@@ -107,44 +107,66 @@ class IWorkspace(ABC, Named):
         return {
             "name": self.name,
             "tasks": list(self.tasks.keys()),
-            "workspaces": [w().structure() for w in self.workspaces]
+            "workspaces": [w.structure() for w in self.workspaces]
         }
 
     @staticmethod
-    def find_default_workspace(task: Task) -> "IWorkspace":
-        """
-        Откуда у экземпляра класса Task должен быть аттрибут _stem_workspace?
-        :param task:
-        :return:
-        """
+    def find_default_workspace(task: Task) -> Type["IWorkspace"]:
         if hasattr(task, "_stem_workspace"):
             return getattr(task, "_stem_workspace")
         else:
             module = import_module(task.__module__)
-            return IWorkspace.module_workspace(module)
+        return IWorkspace.module_workspace(module)
 
     @staticmethod
-    def module_workspace(module: ModuleType) -> "IWorkspace":
-        if hasattr(module, "_stem_workspace"):
-            return getattr(module, "_stem_workspace")
+    def module_workspace(module: ModuleType) -> Type["IWorkspace"]:
+        if hasattr(module, "__stem_workspace"):
+            return module.__stem_workspace
         else:
-            name = module.__name__
             tasks = {}
             workspaces = []
-            for d in dir(module):
-                cls = getattr(module, d)
-                if isinstance(cls, Task):
-                    tasks[d] = cls
-                if isinstance(cls, IWorkspace):
-                    workspaces.append(cls)
-            setattr(module, "_stem_workspace", LocalWorkspace(name, tasks, workspaces))
+            for s in dir(module):
+                t = getattr(module, s)
+                flag = True
+                flag_arr = [True, True, True, True]
+                try:
+                    if issubclass(t, Task):
+                        tasks[s] = t
+                        flag = False
+                except:
+                    pass
+                try:
+                    if flag and isinstance(t, Task):
+                        tasks[s] = t
+                except:
+                    pass
+
+                try:
+                    flag_arr[0] = issubclass(t, type)
+                except:
+                    flag_arr[0] = None
+                try:
+                    flag_arr[1] = isinstance(t, type)
+                except:
+                    flag_arr[1] = None
+                try:
+                    flag_arr[2] = issubclass(t, IWorkspace)
+                except:
+                    flag_arr[2] = None
+                try:
+                    flag_arr[3] = isinstance(t, IWorkspace)
+                except:
+                    flag_arr[3] = None
+
+                if (flag_arr[0] or flag_arr[1]) and (flag_arr[2] or flag_arr[3]):
+                    workspaces.append(t)
+
+            setattr(module, "_stem_workspace", LocalWorkspace(module.__name__, tasks, workspaces))
+
             return getattr(module, "_stem_workspace")
 
 
 class ILocalWorkspace(IWorkspace):
-    def __subclasscheck__(self, C):
-        return NotImplemented
-
     @property
     def tasks(self) -> dict[str, Task]:
         return self._tasks
