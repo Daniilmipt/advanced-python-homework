@@ -66,15 +66,23 @@ class FunctionDataTask(DataTask[T]):
 
 
 def data(func: Callable[[Meta], T], specification: Optional[Specification] = None, **settings) -> FunctionDataTask[T]:
-    return FunctionDataTask(func.__name__, func, specification, **settings)
+    def do():
+        return FunctionDataTask(func.__name__, func, specification, **settings)
+
+    FunctionDataTask.__module__ = func.__module__
+    return do()
 
 
 def task(func: Callable[[Meta, ...], T], specification: Optional[Specification] = None, **settings) -> FunctionTask[T]:
-    return FunctionTask(func.__name__,
-                        func,
-                        tuple(i for i in func.__annotations__.keys() if i != 'meta' and i != "return"),
-                        specification,
-                        **settings)
+    def do():
+        return FunctionTask(func.__name__,
+                            func,
+                            tuple(i for i in func.__annotations__.keys() if i != 'meta' and i != "return"),
+                            specification,
+                            **settings)
+
+    FunctionTask.__module__ = func.__module__
+    return do()
 
 
 class MapTask(Task[Iterator[T]]):
@@ -84,7 +92,8 @@ class MapTask(Task[Iterator[T]]):
         self.dependencies = dependence
 
     def transform(self, meta: Meta, /, **kwargs: Any) -> T:
-        return map(self._func, kwargs[self.dependencies])
+        dp = self.dependencies if isinstance(self.dependencies, str) else self.dependencies.name
+        return map(self._func, kwargs[dp])
 
 
 class FilterTask(Task[Iterator[T]]):
@@ -94,7 +103,9 @@ class FilterTask(Task[Iterator[T]]):
         self.dependencies = dependence
 
     def transform(self, meta: Meta, /, **kwargs: Any) -> T:
-        return filter(self._func, kwargs[self.dependencies])
+        # Считаем, что len(dependencies) = 1, т.е. один объект
+        dp = self.dependencies if isinstance(self.dependencies, str) else self.dependencies.name
+        return filter(self._func, kwargs[dp])
 
 
 class ReduceTask(Task[Iterator[T]]):
@@ -104,5 +115,5 @@ class ReduceTask(Task[Iterator[T]]):
         self.dependencies = dependence
 
     def transform(self, meta: Meta, /, **kwargs: Any) -> T:
-        return reduce(self._func, kwargs[self.dependencies])
-        # return reduce(self._func, *(kwargs.values()))
+        dp = self.dependencies if isinstance(self.dependencies, str) else self.dependencies.name
+        return reduce(self._func, kwargs[dp])
