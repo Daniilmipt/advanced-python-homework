@@ -7,7 +7,7 @@ from stem.core import Dataclass
 
 Meta = Union[dict, Dataclass]
 
-SpecificationField = tuple[object, Union[type, tuple[type, ...]]]
+SpecificationField = tuple[object, Union[type, tuple[type, ...], 'Specification']]
 Specification = Union[Dataclass, SpecificationField, tuple[SpecificationField, ...]]
 
 
@@ -26,7 +26,10 @@ class MetaFieldError:
 class MetaVerification:
     def __init__(self, *errors: Union[MetaFieldError, "MetaVerification"]):
         self.error = errors
-        self.checked_success = errors == []
+
+    @property
+    def checked_success(self):
+        return self.error == []
 
     @staticmethod
     def verify(meta: Meta,
@@ -36,8 +39,8 @@ class MetaVerification:
             spec_keys = specification.__dataclass_fields__.keys()
             spec_dc = {k: specification.__dataclass_fields__[k].type for k in spec_keys}
         else:
-            spec_keys = dict([specification]).keys()
-            spec_dc = dict([specification])
+            spec_keys = dict([specification]).keys() if specification is not None else []
+            spec_dc = dict([specification]) if specification is not None else {}
 
         if is_dataclass(meta):
             meta_keys = meta.__dataclass_fields__.keys()
