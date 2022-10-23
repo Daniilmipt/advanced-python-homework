@@ -2,9 +2,10 @@ from unittest import TestCase
 
 from stem.cli_main import draw_tree
 from stem.task_tree import TaskTree
-from example_task import int_range, int_scale, int_reduce, data_scale, float_reduce
+from tests.example_tasks import int_scale, int_range, float_reduce
 
 
+# c
 class TaskTreeTest(TestCase):
     def test_task_tree(self):
         tree = TaskTree(int_scale)
