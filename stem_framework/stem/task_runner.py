@@ -2,7 +2,7 @@ import os
 from typing import Generic, TypeVar
 from abc import ABC, abstractmethod
 
-from .meta import Meta
+from .meta import Meta, get_meta_attr
 from .task_tree import TaskNode
 
 T = TypeVar("T")
@@ -19,7 +19,8 @@ class SimpleRunner(TaskRunner[T]):
     def run(self, meta: Meta, task_node: TaskNode[T]) -> T:
         dc = {}
         for dep in task_node.dependencies:
-            dc[dep.task.name] = dep.task.transform(meta)
+            meta_new = get_meta_attr(meta, dep.task.name, {})
+            dc[dep.task.name] = self.run(meta_new, dep)
         return task_node.task.transform(meta, **dc)
 
 

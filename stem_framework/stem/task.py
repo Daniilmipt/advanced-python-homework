@@ -69,8 +69,10 @@ def data(func: Callable[[Meta], T], specification: Optional[Specification] = Non
     def do():
         return FunctionDataTask(func.__name__, func, specification, **settings)
 
-    FunctionDataTask.__module__ = func.__module__
-    return do()
+    fdt = do()
+    fdt.__module__ = func.__module__
+    # FunctionDataTask.__module__ = func.__module__
+    return fdt
 
 
 def task(func: Callable[[Meta, ...], T], specification: Optional[Specification] = None, **settings) -> FunctionTask[T]:

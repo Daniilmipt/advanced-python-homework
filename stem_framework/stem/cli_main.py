@@ -1,12 +1,7 @@
 import argparse
-# import cmd
-
 from stem.task_tree import TaskTree, TaskNode
 from stem.workspace import IWorkspace
-import itertools
-
 import networkx as nx
-# import numpy.random as rnd
 import matplotlib.pyplot as plt
 
 

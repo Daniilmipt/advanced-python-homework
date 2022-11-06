@@ -9,13 +9,13 @@ from stem.task import DataTask, data, task
 
 class IntRange(DataTask):
     def data(self, meta: Meta) -> Iterator[int]:
-        opts = get_meta_attr(meta, "start", 0), get_meta_attr(meta,"stop", 10), get_meta_attr(meta, "step", 1)
+        opts = get_meta_attr(meta, "start", 0), get_meta_attr(meta, "stop", 10), get_meta_attr(meta, "step", 1)
         for i in range(*opts):
             yield i
 
 
 @data
-def int_range(meta: Meta)-> Iterator[int]:
+def int_range(meta: Meta) -> Iterator[int]:
     """Source of ineteger number"""
     opts = get_meta_attr(meta, "start", 0), get_meta_attr(meta, "stop", 10), get_meta_attr(meta, "step", 1)
     for i in range(*opts):
@@ -37,17 +37,17 @@ def data_scale(meta: Meta) -> int:
 
 @task
 def int_scale(meta: Meta, int_range: Iterator[int], data_scale: int) -> Iterator[int]:
-    return map(lambda x: data_scale*x, int_range)
+    return map(lambda x: data_scale * x, int_range)
 
 
 @task
 def int_reduce(meta: Meta, int_scale: Iterator[int]) -> int:
-    return reduce(lambda x,y: x + y, int_scale)
+    return reduce(lambda x, y: x + y, int_scale)
 
 
 @task
 def float_scale(meta: Meta, int_reduce: int, float_range: Iterator[float]) -> Iterator[float]:
-    return map(lambda x: int_reduce*x, float_range)
+    return map(lambda x: int_reduce * x, float_range)
 
 
 @task

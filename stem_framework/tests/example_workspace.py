@@ -1,10 +1,11 @@
+from abc import ABC
 from functools import reduce
 from typing import Iterator
 
 from stem.meta import Meta, get_meta_attr
-from stem.task import data, task
+from stem.task import data, task, Task
 from stem.workspace import Workspace
-from tests.example_task import IntRange, int_range
+from tests.example_tasks import IntRange, int_range
 
 
 class SubSubWorkspace(metaclass=Workspace):
@@ -12,7 +13,7 @@ class SubSubWorkspace(metaclass=Workspace):
 
 
 class SubWorkspace(metaclass=Workspace):
-    workspaces = [SubSubWorkspace]
+    _workspaces = [SubSubWorkspace]
 
     @task
     def int_reduce(self, meta: Meta, int_scale: Iterator[int]) -> int:
@@ -20,8 +21,7 @@ class SubWorkspace(metaclass=Workspace):
 
 
 class IntWorkspace(metaclass=Workspace):
-
-    workspaces = [SubWorkspace]
+    _workspaces = [SubWorkspace]
 
     int_range_from_class = IntRange()
 
@@ -40,4 +40,4 @@ class IntWorkspace(metaclass=Workspace):
 
     @task
     def int_scale(self, meta: Meta, int_range: Iterator[int], data_scale: int) -> Iterator[int]:
-        return map(lambda x: data_scale*x, int_range)
+        return map(lambda x: data_scale * x, int_range)

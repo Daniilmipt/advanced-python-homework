@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from stem.task_master import TaskMaster
 from stem.task_runner import SimpleRunner
-from tests.example_task import int_scale
+from tests.example_tasks import int_scale
 
 
 class SimpleRunnerTest(TestCase):
