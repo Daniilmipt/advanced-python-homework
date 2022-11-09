@@ -14,12 +14,11 @@ class TestEnvelope(TestCase):
 
     def test_read(self):
         data = self.envelope.to_bytes()
-        print(data)
         envelope = Envelope.from_bytes(data)
         self.assertDictEqual(self.envelope.meta, envelope.meta)
         self.assertEqual(self.envelope.data, envelope.data)
 
-        file_name = 'data.pickle'
+        file_name = 'test.txt'
 
         with open('../data_files/{}'.format(file_name), 'rb') as file:
             fi = io.FileIO(file.fileno())
@@ -27,8 +26,8 @@ class TestEnvelope(TestCase):
             a = Envelope.read(fb)
         print(a.meta)
         print(a.data)
-        with open('test', 'wb') as file:
-            print(a.write_to(file))
+        with open('../data_files/test.txt', 'wb') as file:
+            a.write_to(file)
 
-        with open('test', 'rb') as file:
+        with open('../data_files/test.txt', 'rb') as file:
             print(file.read())
