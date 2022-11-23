@@ -1,3 +1,4 @@
+import asyncio
 from enum import Enum, auto
 from typing import Optional, Callable, TypeVar, Generic
 from functools import cached_property
@@ -76,4 +77,6 @@ class TaskMaster:
                 return TaskResult(task_node=node, status=TaskStatus.META_ERROR,
                                   meta_errors=TaskMetaError(task_node=node, meta_error=meta_verify))
         return TaskResult(task_node=node, status=TaskStatus.CONTAINS_DATA,
-                          lazy_data=lambda: self.task_runner.run(meta, node))
+                          lazy_data=lambda: asyncio.run(self.task_runner.run(meta, node))
+                          if asyncio.iscoroutinefunction(self.task_runner.run)
+                          else self.task_runner.run(meta, node))
