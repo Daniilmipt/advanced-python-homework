@@ -1,8 +1,8 @@
 from unittest import TestCase
-
+import time
 from stem.task_master import TaskMaster
 from stem.task_runner import SimpleRunner, TaskRunner, ThreadingRunner, AsyncRunner, ProcessingRunner
-from tests.example_tasks import int_scale, int_range, float_reduce, float_scale
+from tests.example_tasks import int_scale
 
 
 class RunnerTest(TestCase):
@@ -14,17 +14,29 @@ class RunnerTest(TestCase):
             self.assertEqual(i, r)
 
     def test_simple(self):
+        start = time.time()
         runner = SimpleRunner()
         self._run(runner)
+        end = time.time() - start
+        print(end)
 
     def test_threading(self):
+        start = time.time()
         runner = ThreadingRunner()
         self._run(runner)
+        end = time.time() - start
+        print(end)
 
     def test_async(self):
+        start = time.time()
         runner = AsyncRunner()
         self._run(runner)
+        end = time.time() - start
+        print(end)
 
     def test_process(self):
+        start = time.time()
         runner = ProcessingRunner()
         self._run(runner)
+        end = time.time() - start
+        print(end)

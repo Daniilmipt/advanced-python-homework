@@ -10,3 +10,5 @@ matplotlib~=3.6.1
 
 graphviz~=0.20.1
 chardet~=5.0.0
+pathos~=0.3.0
+h5py~=3.7.0
