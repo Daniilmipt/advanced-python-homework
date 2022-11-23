@@ -29,7 +29,7 @@ class MetaVerification:
 
     @property
     def checked_success(self):
-        return self.error == []
+        return self.error == ()
 
     @staticmethod
     def verify(meta: Meta,
