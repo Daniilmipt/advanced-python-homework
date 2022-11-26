@@ -34,6 +34,9 @@ class MetaVerification:
     @staticmethod
     def verify(meta: Meta,
                specification: Optional[Specification] = None) -> "MetaVerification":
+        """
+        Check that meta have the same types as specification
+        """
 
         if is_dataclass(specification):
             spec_keys = specification.__dataclass_fields__.keys()
@@ -72,6 +75,9 @@ class MetaVerification:
 
 
 def get_meta_attr(meta: Meta, key: str, default: Optional[Any] = None) -> Optional[Any]:
+    """
+    Return meta value by key from top level of meta or default if key don't exist in meta
+    """
     try:
         return meta[key]
     except KeyError:
@@ -86,6 +92,9 @@ def get_meta_attr(meta: Meta, key: str, default: Optional[Any] = None) -> Option
 
 
 def update_meta(meta: Meta, **kwargs):
+    """
+    Update meta from kwargs
+    """
     if is_dataclass(meta):
         for key in kwargs:
             setattr(meta, key, kwargs[key])
