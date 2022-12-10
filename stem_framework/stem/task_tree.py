@@ -47,6 +47,7 @@ class TaskNode(Generic[T]):
 
     def set_unresolved_dependencies(self) -> list["str"]:
         unresolved_dependencies = []
+
         for d in self.task.dependencies:
             if not self.workspace.has_task(d):
                 unresolved_dependencies.append(d)

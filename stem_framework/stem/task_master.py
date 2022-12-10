@@ -31,7 +31,7 @@ class TaskMetaError(Generic[T]):
     @property
     def has_error(self) -> bool:
         return self.meta_error is not None or \
-               any(map(lambda x: x.has_error, self.dependencies_error))
+            any(map(lambda x: x.has_error, self.dependencies_error))
 
 
 class TaskStatus(Enum):
