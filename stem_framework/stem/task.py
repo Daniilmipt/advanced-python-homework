@@ -35,7 +35,10 @@ class FunctionTask(Task[T]):
         return self._func(*args, **kwargs)
 
     def transform(self, meta: Meta, /, **kwargs: Any) -> T:
-        return self._func(meta, **kwargs)
+        try:
+            return self._func(meta, **kwargs)
+        except:
+            return self._func(self, meta, **kwargs)
 
 
 class DataTask(Task[T]):
@@ -46,6 +49,8 @@ class DataTask(Task[T]):
         pass
 
     def transform(self, meta: Meta, /, **kwargs: Any) -> T:
+        # print(**kwargs)
+        # print(meta)
         return self.data(meta)
 
 
@@ -62,7 +67,10 @@ class FunctionDataTask(DataTask[T]):
         return self._func(*args, **kwargs)
 
     def data(self, meta: Meta) -> T:
-        return self._func(meta)
+        try:
+            return self._func(meta)
+        except:
+            return self._func(self, meta)
 
 
 def data(func: Callable[[Meta], T], specification: Optional[Specification] = None, **settings) -> FunctionDataTask[T]:
@@ -71,7 +79,6 @@ def data(func: Callable[[Meta], T], specification: Optional[Specification] = Non
 
     fdt = do()
     fdt.__module__ = func.__module__
-    # FunctionDataTask.__module__ = func.__module__
     return fdt
 
 

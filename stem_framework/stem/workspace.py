@@ -2,6 +2,7 @@
 Conception modularity software
 """
 import inspect
+import json
 from abc import ABC, abstractmethod, ABCMeta
 from types import ModuleType
 from typing import Optional, Any, Type, TypeVar, Union
@@ -76,10 +77,6 @@ class IWorkspace(ABC, Named):
     def __eq__(self, obj: "IWorkspace"):
         return self.tasks == obj.tasks and self.workspaces == obj.workspaces
 
-    # def __hash__(self):
-    #     return object.__hash__(self.tasks, self.workspaces, self.name)
-
-    # @classmethod
     def find_task(self, task_path: Union[str, TaskPath]) -> Optional[Task]:
         if not isinstance(task_path, TaskPath):
             task_path = TaskPath(task_path)
@@ -100,18 +97,18 @@ class IWorkspace(ABC, Named):
                     return wks.find_task(task_path.sub_path)
             return None
 
-    # @classmethod
     def has_task(self, task_path: Union[str, TaskPath]) -> bool:
         return IWorkspace.find_task(self, task_path) is not None
 
-    # @classmethod
     def get_workspace(self, name) -> Optional["IWorkspace"]:
         for workspace in self.workspaces:
             if workspace.name == name:
                 return workspace
+            wrs = workspace.get_workspace(name)
+            if wrs is not None:
+                return wrs
         return None
 
-    # @classmethod
     def structure(self) -> dict:
         return {
             "name": self.name,
@@ -136,45 +133,19 @@ class IWorkspace(ABC, Named):
             workspaces = []
             for s in dir(module):
                 t = getattr(module, s)
-                flag = True
-                flag_arr = [True, True, True, True]
                 try:
-                    if issubclass(t, Task):
-                        tasks[s] = t
-                        flag = False
+                    mro = [s.__name__ for s in t.__mro__]
                 except:
-                    pass
-                try:
-                    if flag and isinstance(t, Task):
-                        tasks[s] = t
-                except:
-                    pass
-
-                try:
-                    flag_arr[0] = issubclass(t, type)
-                except:
-                    flag_arr[0] = None
-                try:
-                    flag_arr[1] = isinstance(t, type)
-                except:
-                    flag_arr[1] = None
-                try:
-                    flag_arr[2] = issubclass(t, IWorkspace)
-                except:
-                    flag_arr[2] = None
-                try:
-                    flag_arr[3] = isinstance(t, IWorkspace)
-                except:
-                    flag_arr[3] = None
-
-                if (flag_arr[0] or flag_arr[1]) and (flag_arr[2] or flag_arr[3]):
+                    mro = [s.__name__ for s in t.__class__.__mro__]
+                if 'Task' in mro:
+                    tasks[s] = t
+                elif mro[1] == 'ILocalWorkspace':
                     workspaces.append(t)
             setattr(module, "_stem_workspace", LocalWorkspace(module.__name__, tasks, workspaces))
             return getattr(module, "_stem_workspace")
 
 
 class ILocalWorkspace(IWorkspace):
-
     @property
     def tasks(self) -> dict[str, Task]:
         return self._tasks
@@ -200,7 +171,7 @@ class Workspace(ABCMeta, ILocalWorkspace):
         try:
             workspaces = list(cls.workspaces)
         except AttributeError:
-            workspaces = list()
+            workspaces = []
 
         cls_attr_replaced = {
             a: ProxyTask(a, t)

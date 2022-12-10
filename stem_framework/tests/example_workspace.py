@@ -1,9 +1,8 @@
-from abc import ABC
 from functools import reduce
 from typing import Iterator
 
 from stem.meta import Meta, get_meta_attr
-from stem.task import data, task, Task
+from stem.task import data, task
 from stem.workspace import Workspace
 from tests.example_tasks import IntRange, int_range
 
@@ -26,6 +25,7 @@ class IntWorkspace(metaclass=Workspace):
     int_range_from_class = IntRange()
 
     int_range_from_func = int_range
+    int_range = int_range
 
     @data
     def int_range_as_method(self, meta: Meta) -> Iterator[int]:

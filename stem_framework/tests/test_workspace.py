@@ -1,8 +1,8 @@
 from unittest import TestCase
 
 from stem.task import FunctionDataTask
-from stem.workspace import Workspace, IWorkspace, ProxyTask, LocalWorkspace, Meta, ILocalWorkspace
-from tests.example_tasks import int_range, IntRange
+from stem.workspace import Workspace, IWorkspace, ProxyTask, Meta
+from tests.example_tasks import int_range, IntRange, int_scale
 from tests.example_workspace import IntWorkspace, SubSubWorkspace, SubWorkspace
 
 
@@ -11,6 +11,11 @@ class WorkspaceTest(TestCase):
         self.workspace = IntWorkspace
 
     def test_instance(self):
+        # print(type(int_scale))
+        # print(type(IntWorkspace.int_scale))
+        print(type(IntWorkspace()))
+        print(type(IntWorkspace))
+        print(isinstance(IntWorkspace, Workspace))
         self.assertIs(self.workspace, IntWorkspace())
 
     def test_name(self):
