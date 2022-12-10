@@ -47,8 +47,7 @@ class Envelope:
         meta_length = int.from_bytes(input.read(4), byteorder='big')
         data_length = int.from_bytes(input.read(4), byteorder='big')
         input.read(4)
-        a = input.read(meta_length)
-        meta = json.loads(a.decode("utf-8").replace("'", "\""))
+        meta = json.loads(input.read(meta_length).decode("utf-8").replace("'", "\""))
 
         if data_length >= Envelope._MAX_SIZE:
             with mmap.mmap(input.fileno(), length=0, access=mmap.ACCESS_READ) as mmap_obj:
