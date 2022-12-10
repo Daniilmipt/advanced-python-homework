@@ -47,7 +47,8 @@ class Envelope:
         meta_length = int.from_bytes(input.read(4), byteorder='big')
         data_length = int.from_bytes(input.read(4), byteorder='big')
         input.read(4)
-        meta = json.loads(input.read(meta_length).decode("utf-8").replace("'", "\""))
+        a = input.read(meta_length)
+        meta = json.loads(a.decode("utf-8").replace("'", "\""))
 
         if data_length >= Envelope._MAX_SIZE:
             with mmap.mmap(input.fileno(), length=0, access=mmap.ACCESS_READ) as mmap_obj:
@@ -78,7 +79,20 @@ class Envelope:
 
     @staticmethod
     async def async_read(reader: StreamReader) -> "Envelope":
-        pass  # TODO(Assignment 11)
+        await reader.read(2)
+        type = (await reader.read(4)).decode("utf-8")
+        meta_type = (await reader.read(2)).decode("utf-8")
+        meta_length = int.from_bytes(await reader.read(4), byteorder='big')
+        data_length = int.from_bytes(await reader.read(4), byteorder='big')
+        await reader.read(4)
+        meta = json.loads((await reader.read(meta_length)).decode("utf-8").replace("'", "\""))
+
+        if data_length >= Envelope._MAX_SIZE:
+            async with mmap.mmap(-1, length=0, access=mmap.ACCESS_READ) as mmap_obj:
+                data = await mmap_obj.read(data_length)
+        else:
+            data = await reader.read(data_length)
+        return Envelope(meta, data)
 
     async def async_write_to(self, writer: StreamWriter):
-        pass  # TODO(Assignment 11)
+        writer.write(self.to_bytes())
