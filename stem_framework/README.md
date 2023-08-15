@@ -1,21 +1,34 @@
-## Development install
-1. Deployment virtual enviroment, install packages from ```requirements.txt```:
+## Описание
+
+Необходимо написать  фреймворк по для выполнения  задач(task) в разлчиных пространствах(workspace), независимо друг от друга
+
+На данный момент релизован основной функционал создания и выполнения задач в своих пространствах.  
+Также реализован сервер промежуточного программного обеспечения, который обеспечивает доступ
+к вычислительному серверу и распределяет задачи между ними
+
+В каталоге tests можно найти тесты для каждого  функционала. На основе этих тестов и проверялась корректность работы программы
+
+
+## Настройка
+1. Установить виртуальное окружение, затем установить зависимости ```requirements.txt```:
 ```
 cd ./stem_framework
 pip install -r requirements.txt
 ```
-2. Install stem packages in ```editable mode```:
+2. Установить stem packages в режиме ```editable mode```:
 ```
 pip install -e .
 ```
-It find and run setup.py in ```editable mode```. It's meaning than any changes to the original package would reflect directly in your environment.
+Это найдет и запустит setup.py в режиме ```editable mode```. Это означает, что любые изменения в исходном пакете будут отражаться непосредственно в вашей среде
 
-3.You can build the ```docs``` with ```setup.py``` also:
+3. Можно установить ```docs``` через ```setup.py``` также:
 ```
 python setup.py build_sphinx
 ```
-And you can also do it:
+И также можно загрузить html страницу с документацией:
 ```
 cd ./docs
 make html
 ```
+
+
